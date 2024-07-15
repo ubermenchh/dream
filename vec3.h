@@ -3,16 +3,19 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct Vector3 { double x, y, z; } Vector3;
+typedef Vector3 Point3;
 
 enum UNARY_OPS { INIT, NEG, LEN, SQR_LEN };
 enum BINARY_OPS { ADD, SUB, MULT, DIV, DOT, CROSS };
 enum ASSIGN_OPS { ADD_AS, SUB_AS, MULT_AS, DIV_AS };
 
-static inline Vector3* vector_init(void) {
-    Vector3* out;
-    out->x = 0; out->y = 0; out->z=0;
+static inline Vector3* vector_init(double x, double y, double z) {
+    Vector3* out = (Vector3*)malloc(sizeof(Vector3));
+    if (out == NULL) return NULL;
+    out->x = x; out->y = y; out->z=z;
     return out;
 }
 
@@ -28,6 +31,10 @@ static inline double vector_len_sq(Vector3* vector) {
 
 static inline double vector_len(Vector3* vector) {
     return sqrt(vector_len_sq(vector));
+}
+
+static inline void vector_setall(Vector3* vector, double x, double y, double z) {
+    vector->x = x; vector->y = y; vector->z = z;
 }
 
 static inline Vector3* vector_op(enum BINARY_OPS op, Vector3* v1, Vector3* v2) {
@@ -129,6 +136,9 @@ static inline double vector_dot(Vector3* v1, Vector3* v2) {
     return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 static inline Vector3* vector_cross(Vector3* v1, Vector3* v2) { return vector_op(CROSS, v1, v2); }
+static inline Vector3* vector_add(Vector3* v1, Vector3* v2) { return vector_op(ADD, v1, v2); }
+static inline Vector3* vector_sub(Vector3* v1, Vector3* v2) { return vector_op(SUB, v1, v2); }
+
 static inline Vector3* unit_vector(Vector3* vector) { 
     return vector_scalar_op(DIV, vector, vector_len(vector)); 
 }
