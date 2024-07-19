@@ -1,14 +1,36 @@
 #include <stdio.h> 
+#include <stdbool.h>
 
 #include "vector.h"
 #include "color.h"
 #include "ray.h"
 
+double hit_sphere(Point* center, double radius, Ray* ray) {
+    Vector* oc = vector_sub(center, ray->origin);
+    double a = vector_dot(ray->direction, ray->direction);
+    double b = -2.0 * vector_dot(ray->direction, oc);
+    double c = vector_dot(oc, oc) - (radius*radius);
+    double discriminant = (b*b) - (4*a*c);
+    
+    if (discriminant < 0) {
+        return -1.0;
+    } else {
+        return (-b - sqrt(discriminant)) / (2.0 * a);
+    }
+}
+
 Color ray_color(Ray* r) {
+    double t = hit_sphere(&(Point){0, 0, -1}, 0.5, r);
+    if (t > 0.0) {
+        Point rayat = ray_at(r, t);
+        Vector* N = unit_vector(vector_sub(&rayat, &(Vector){0, 0, -1}));
+        return *vector_scalar_mul(&(Color){N->x + 1, N->y + 1, N->z + 1}, 0.5);
+    }
+
     Vector* unit_direction = unit_vector(r->direction);
     double a = 0.5 * (unit_direction->y + 1.0);
     Color white = (Color){1.0, 1.0, 1.0};
-    Color blue = (Color){0.5, 0.7, 1.0};
+    Color blue = (Color){0.2, 0.5, 1.0};
     Color final_color = *vector_add(
             vector_scalar_mul(&white, (1.0 - a)), 
             vector_scalar_mul(&blue, a)
@@ -48,7 +70,9 @@ int main(void) {
     Vector* pixel_delta_v_half = vector_scalar_div(pixel_delta_v, 2.0); // pixel_delta_v / 2 
     Vector* pixel_delta_half = vector_add(pixel_delta_u_half, pixel_delta_v_half);
 
-    Point viewport_upper_left = *vector_sub(&camera_center, &(Vector){0, 0, focal_length});
+    Point viewport_upper_left = *vector_sub(&camera_center, 
+            &(Vector){viewport_width / 2, -viewport_height / 2, focal_length}
+    );
     viewport_upper_left = *vector_sub(&viewport_upper_left, pixel_delta_half);
 
     // pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v)
