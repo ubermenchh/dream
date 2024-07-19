@@ -19,6 +19,11 @@ static inline Vector* vector_init(void) {
     return vector;
 }
 
+static inline void free_vector(Vector* vector) {
+    if (vector == NULL) return;
+    free(vector);
+}
+
 static inline Vector* vector_negate(Vector* vector) {
     Vector* out = vector_init();
     out->x = -1 * vector->x;
@@ -103,11 +108,6 @@ static inline Vector* vector_cross(Vector* v, Vector* w) { return vector_op(CROS
 static inline double vector_dot(Vector* v, Vector* w) {
     return (v->x * w->x) + (v->y * w->y) + (v->z * w->z);
 }
-static inline Vector* unit_vector(void) {
-    Vector* out = vector_init();
-    out->x = 1; out->y = 1; out->z = 1;
-    return out;
-}
 
 static inline Vector* vector_scalar_add(Vector* v, double x) { return vector_scalar_op(ADD, v, x); }
 static inline Vector* vector_scalar_sub(Vector* v, double x) { return vector_scalar_op(SUB, v, x); }
@@ -118,7 +118,9 @@ static inline double vector_length_sq(Vector* vector) {
     return (vector->x * vector->x) + (vector->y * vector->y) + (vector->z * vector->z); 
 }
 static inline double vector_length(Vector* vector) { return sqrt(vector_length_sq(vector)); }
-
+static inline Vector* unit_vector(Vector* vector) {
+    return vector_scalar_div(vector, vector_length(vector));
+}
 static inline void print_vector(Vector* vector) {
     printf("(%f %f %f)\n", vector->x, vector->y, vector->z);
 }
