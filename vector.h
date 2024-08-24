@@ -2,127 +2,110 @@
 #define VECTOR_H 
 
 #include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h> 
 
-typedef struct {
-    double x, y, z;
-} Vector;
+typedef struct Vector_t {
+    double x;
+    double y;
+    double z;
+} Vector_t;
 
-enum OPS { ADD, SUB, MUL, DIV, DOT, CROSS };
-typedef Vector Point;
+typedef Vector_t Point_t;
 
-static inline Vector* vector_init(void) {
-    Vector* vector = (Vector*)malloc(sizeof(Vector));
-    if (vector == NULL) return NULL;
-    vector->x = 0; vector->y = 0; vector->z = 0;
-    return vector;
-}
+static inline Vector_t Vector(double x, double y, double z) {
+    Vector_t out = {.x = x, .y = y, .z = z};
+    return out;
+}  
 
-static inline void free_vector(Vector* vector) {
-    if (vector == NULL) return;
-    free(vector);
-}
+static inline void vector_print(Vector_t v) {
+    printf("Vector(x=%f, y=%f, z=%f)\n", v.x, v.y, v.z);
+} 
 
-static inline Vector* vector_negate(Vector* vector) {
-    Vector* out = vector_init();
-    out->x = -1 * vector->x;
-    out->y = -1 * vector->y;
-    out->z = -1 * vector->z;
+static inline Vector_t vector_negate(Vector_t v) {
+    Vector_t out = Vector(-v.x, -v.y, -v.z);
     return out;
 }
 
-
-static inline Vector* vector_scalar_op(enum OPS op, Vector* vector, double v) {
-    Vector* out = vector_init();
-
-    switch (op) {
-        case ADD:
-            out->x = vector->x + v;
-            out->y = vector->y + v;
-            out->z = vector->z + v;
-            break;
-        case SUB:
-            out->x = vector->x - v;
-            out->y = vector->y - v;
-            out->z = vector->z - v;
-            break;
-        case MUL:
-            out->x = vector->x * v;
-            out->y = vector->y * v;
-            out->z = vector->z * v;
-            break;
-        case DIV:
-            out->x = vector->x / v;
-            out->y = vector->y / v;
-            out->z = vector->z / v;
-            break;
-        default:
-            printf("Invalid operation.");
-            return NULL;
-    }
+static inline Vector_t vector_add(Vector_t v, Vector_t w) {
+    Vector_t out = Vector(v.x + w.x, v.y + w.y, v.z + w.z);
     return out;
 }
 
-static inline Vector* vector_op(enum OPS op, Vector* v, Vector* w) {
-    Vector* out = vector_init();
+static inline Vector_t _vector_add(Vector_t v, Vector_t w) {
+    v.x += w.x; 
+    v.y += w.y; 
+    v.z += w.z;
+    return v;
+}
 
-    switch (op) {
-        case ADD:
-            out->x = v->x + w->x;
-            out->y = v->y + w->y;
-            out->z = v->z + w->z;
-            break;
-        case SUB:
-            out->x = v->x - w->x;
-            out->y = v->y - w->y;
-            out->z = v->z - w->z;
-            break;
-        case MUL:
-            out->x = v->x * w->x;
-            out->y = v->y * w->y;
-            out->z = v->z * w->z;
-            break;
-        case DIV:
-            out->x = v->x / w->x;
-            out->y = v->y / w->y;
-            out->z = v->z / w->z;
-            break;
-        case CROSS:
-            out->x = v->y * w->z - v->z * w->y;
-            out->y = v->z * w->x - v->x * w->z;
-            out->z = v->x * w->y - v->y * w->x;
-            break;
-        default:
-            printf("Invalid operation.");
-            return NULL;
-    }
+static inline Vector_t vector_sub(Vector_t v, Vector_t w) {
+    Vector_t out = Vector(v.x - w.x, v.y - w.y, v.z - w.z);
     return out;
 }
 
-static inline Vector* vector_add(Vector* v, Vector* w) { return vector_op(ADD, v, w); }
-static inline Vector* vector_sub(Vector* v, Vector* w) { return vector_op(SUB, v, w); }
-static inline Vector* vector_mul(Vector* v, Vector* w) { return vector_op(MUL, v, w); }
-static inline Vector* vector_div(Vector* v, Vector* w) { return vector_op(DIV, v, w); }
-static inline Vector* vector_cross(Vector* v, Vector* w) { return vector_op(CROSS, v, w); }
-static inline double vector_dot(Vector* v, Vector* w) {
-    return (v->x * w->x) + (v->y * w->y) + (v->z * w->z);
+static inline Vector_t _vector_sub(Vector_t v, Vector_t w) {
+    v.x -= w.x;
+    v.y -= w.y;
+    v.z -= w.z;
+    return v;
 }
 
-static inline Vector* vector_scalar_add(Vector* v, double x) { return vector_scalar_op(ADD, v, x); }
-static inline Vector* vector_scalar_sub(Vector* v, double x) { return vector_scalar_op(SUB, v, x); }
-static inline Vector* vector_scalar_mul(Vector* v, double x) { return vector_scalar_op(MUL, v, x); }
-static inline Vector* vector_scalar_div(Vector* v, double x) { return vector_scalar_op(DIV, v, x); }
-
-static inline double vector_length_sq(Vector* vector) {
-    return (vector->x * vector->x) + (vector->y * vector->y) + (vector->z * vector->z); 
-}
-static inline double vector_length(Vector* vector) { return sqrt(vector_length_sq(vector)); }
-static inline Vector* unit_vector(Vector* vector) {
-    return vector_scalar_div(vector, vector_length(vector));
-}
-static inline void print_vector(Vector* vector) {
-    printf("(%f %f %f)\n", vector->x, vector->y, vector->z);
+static inline Vector_t vector_mult(Vector_t v, Vector_t w) {
+    Vector_t out = Vector(v.x * w.x, v.y * w.y, v.z * w.z);
+    return out;
 }
 
-#endif // VECTOR_H
+static inline Vector_t _vector_mult(Vector_t v, Vector_t w) {
+    v.x *= w.x;
+    v.y *= w.y;
+    v.z *= w.z;
+    return v;
+}
+
+static inline Vector_t _vector_scalar_mult(Vector_t v, double t) {
+    v.x *= t;
+    v.y *= t;
+    v.z *= t;
+    return v;
+}
+
+static inline Vector_t vector_scalar_mult(Vector_t v, double t) {
+    Vector_t out = Vector(v.x * t, v.y * t, v.z * t);
+    return out;
+}
+
+static inline Vector_t vector_scalar_div(Vector_t v, double t) {
+    Vector_t out = Vector(v.x / t, v.y / t, v.z / t);
+    return out;
+}
+
+static inline Vector_t _vector_scalar_div(Vector_t v, double t) {
+    v.x /= t;
+    v.y /= t; 
+    v.z /= t;
+    return v;
+}
+
+static inline double vector_length_sq(Vector_t v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
+static inline double vector_length(Vector_t v) {
+    return sqrt(vector_length_sq(v));
+}
+
+static inline double vector_dot(Vector_t v, Vector_t w) {
+    return v.x * w.x + v.y * w.y + v.z * w.z;
+}
+
+static inline Vector_t vector_cross(Vector_t v, Vector_t w) {
+    return Vector(v.y * w.z - v.z * w.y,
+                  v.z * w.x - v.x * w.z,
+                  v.x * w.y - v.y * w.x);
+}
+
+static inline Vector_t unit_vector(Vector_t v) {
+    return vector_scalar_div(v, vector_length(v));
+}
+
+#endif

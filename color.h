@@ -1,23 +1,30 @@
-#ifndef COLOR_H
+#ifndef COLOR_H 
 #define COLOR_H 
 
+#include "vector.h" 
+
 #include <stdio.h> 
-#include "vector.h"
 
-typedef Vector Color;
+typedef Vector_t Color_t;
 
-static inline void color_init(FILE* out, const Color* pixel_color) {
-    double r = pixel_color->x;
-    double g = pixel_color->y;
-    double b = pixel_color->z;
+/* Initialize a Color */
+static inline Color_t Color(double x, double y, double z) {
+    Color_t out = {.x = x, .y = y, .z = z};
+    return out;
+}
 
-    // Translate the [0, 1] component values to the byte range [0, 255]
+static inline void write_color(Color_t pixel_color) {
+    double r = pixel_color.x;
+    double g = pixel_color.y;
+    double b = pixel_color.z;
+
+    // translate the [0, 1] component values to the byte range [0, 255]
     int rbyte = (int)(255.999 * r);
     int gbyte = (int)(255.999 * g);
     int bbyte = (int)(255.999 * b);
 
-    // Write out the pixel color components
-    fprintf(out, "%d %d %d\n", rbyte, gbyte, bbyte);
+    // write out the pixel color components 
+    printf("%d %d %d\n", rbyte, gbyte, bbyte);
 }
 
-#endif // COLOR_H
+#endif

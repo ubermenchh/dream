@@ -1,30 +1,23 @@
-#ifndef RAY_H
-#define RAY_H 
-
-#include "vector.h"
+#ifndef RAY_H 
+#define RAY_H
+ 
+#include "vector.h" 
 
 typedef struct {
-    Point* origin;
-    Vector* direction;
-} Ray;
+    Point_t origin;
+    Vector_t direction;
+} Ray_t;
 
-static inline Ray* ray_init(Point* orig, Vector* dir) {
-    Ray* ray = (Ray*)malloc(sizeof(Ray));
-    if (ray == NULL) return NULL;
-    ray->origin = orig;
-    ray->direction = dir;
+/* Initialize a ray */
+static inline Ray_t Ray(Point_t origin, Vector_t direction) {
+    Ray_t ray = {.origin = origin, .direction = direction};
     return ray;
 }
 
-static inline void free_ray(Ray* ray) {
-    if (ray == NULL) return;
-    if (ray->origin != NULL) free_vector(ray->origin);
-    if (ray->direction != NULL) free_vector(ray->direction);
-    free(ray);
+/* Calculate the 3D position along the line. */
+static inline Point_t ray_at(Ray_t ray, double t) {
+    // P_t = A + tb
+    return (Point_t)vector_add(ray.origin, vector_scalar_mult(ray.direction, t));
 }
 
-static inline Point ray_at(Ray* ray, double t) {
-    return *vector_add(ray->origin, vector_scalar_mul(ray->direction, t));
-}
-
-#endif // RAY_H
+#endif
