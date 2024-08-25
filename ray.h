@@ -20,4 +20,4 @@ static inline Point_t ray_at(Ray_t ray, double t) {
     return (Point_t)vector_add(ray.origin, vector_scalar_mult(ray.direction, t));
 }
 
-#endif
+#endif // RAY_H

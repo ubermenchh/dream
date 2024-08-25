@@ -1,33 +1,15 @@
-#include <stdio.h> 
-#include <stdbool.h>
-
-#include "vector.h"
-#include "ray.h" 
-#include "color.h"
-
-/* Checks if a Point hits the Sphere or not */
-double hit_sphere(Point_t center, double radius, Ray_t ray) {
-    Vector_t oc = vector_sub(center, ray.origin);
-    double a = vector_length_sq(ray.direction);
-    double h = vector_dot(ray.direction, oc);
-    double c = vector_length_sq(oc) - radius*radius;
-    double discriminant = h*h - a*c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (h - sqrt(discriminant)) / a;
-    } 
-} 
+#include "dream.h"
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 // Equation for the gradient
 // blended_value = (1 - a) * start_value + a * end_value
-Color_t ray_color(Ray_t ray) {
-    double t = hit_sphere((Point_t)Vector(0, 0, -1), 0.5, ray);
-    if (t > 0.0) {
-        Vector_t N = unit_vector(vector_sub(ray_at(ray, t), Vector(0, 0, -1)));
-        return vector_scalar_mult(Vector(N.x + 1, N.y + 1, N.z + 1), 0.5);
-    }
+Color_t ray_color(Ray_t ray, Hittable* world) {
+    Hit_Record rec;
+    if (world->hit(world, ray, 0, INFINITY, rec)) {
+        return vector_scalar_mult(vector_add(rec.normal, Color(1, 1, 1)), 0.5);
+    } 
 
     Vector_t unit_direction = unit_vector(ray.direction);
     double a = 0.5 * (unit_direction.y + 1.0);
@@ -45,6 +27,13 @@ int main() {
     // Calculate the image height and ensure that it's at least 1 
     int image_height = (int)(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    // World 
+    Hittable_List_t* world = Hittable_List();
+    Sphere_t* sphere1 = Sphere((Point_t)Vector(0, 0, -1), 0.5);
+    Sphere_t* sphere2 = Sphere((Point_t)Vector(0, -100.5, -1), 100);
+    hittable_list_add(world, (Hittable*)sphere1);
+    hittable_list_add(world, (Hittable*)sphere2);
 
     // Camera 
     double focal_length = 1.0;
@@ -81,7 +70,7 @@ int main() {
             Vector_t ray_direction = vector_sub(pixel_center, camera_center);
             Ray_t ray = Ray(camera_center, ray_direction);
             
-            Color_t pixel_color = ray_color(ray);
+            Color_t pixel_color = ray_color(ray, (Hittable*)world);
             write_color(pixel_color);
         }
     }

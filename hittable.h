@@ -1,7 +1,6 @@
 #ifndef HITTABLE_H 
 #define HITTABLE_H 
 
-#include "ray.h"
 
 typedef struct {
     Point_t p;
@@ -10,9 +9,11 @@ typedef struct {
     bool front_face;
 } Hit_Record;
 
-typedef struct Hittable {
-    bool (*hit)(Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record rec);
-} Hittable;
+typedef struct Hittable Hittable;
+
+struct Hittable {
+    bool (*hit)(Hittable* self, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record rec);
+};
 
 static inline void set_face_normal(Hit_Record hr, Ray_t ray, Vector_t outward_normal) {
     // sets the hit record normal vector.
@@ -21,4 +22,4 @@ static inline void set_face_normal(Hit_Record hr, Ray_t ray, Vector_t outward_no
     hr.normal = front_face ? outward_normal : vector_negate(outward_normal);
 }
 
-#endif
+#endif // HITTABLE_H

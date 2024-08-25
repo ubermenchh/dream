@@ -3,8 +3,6 @@
 
 #include "vector.h" 
 
-#include <stdio.h> 
-
 typedef Vector_t Color_t;
 
 /* Initialize a Color */
@@ -27,4 +25,4 @@ static inline void write_color(Color_t pixel_color) {
     printf("%d %d %d\n", rbyte, gbyte, bbyte);
 }
 
-#endif
+#endif // COLOR_H

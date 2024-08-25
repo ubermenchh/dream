@@ -1,8 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H 
 
-#include <math.h>
-#include <stdio.h> 
 
 typedef struct Vector_t {
     double x;
@@ -108,4 +106,4 @@ static inline Vector_t unit_vector(Vector_t v) {
     return vector_scalar_div(v, vector_length(v));
 }
 
-#endif
+#endif // VECTOR_H
