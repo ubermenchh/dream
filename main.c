@@ -7,7 +7,7 @@
 // blended_value = (1 - a) * start_value + a * end_value
 Color_t ray_color(Ray_t ray, Hittable* world) {
     Hit_Record rec;
-    if (world->hit(world, ray, 0, INFINITY, rec)) {
+    if (world->hit(world, ray, 0, INFINITY, &rec)) {
         return vector_scalar_mult(vector_add(rec.normal, Color(1, 1, 1)), 0.5);
     } 
 
@@ -30,8 +30,8 @@ int main() {
 
     // World 
     Hittable_List_t* world = Hittable_List();
-    Sphere_t* sphere1 = Sphere((Point_t)Vector(0, 0, -1), 0.5);
-    Sphere_t* sphere2 = Sphere((Point_t)Vector(0, -100.5, -1), 100);
+    Sphere_t* sphere1 = Sphere(Vector(0, 0, -1), 0.5);
+    Sphere_t* sphere2 = Sphere(Vector(0, -100.5, -1), 100);
     hittable_list_add(world, (Hittable*)sphere1);
     hittable_list_add(world, (Hittable*)sphere2);
 

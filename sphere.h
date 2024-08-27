@@ -11,7 +11,7 @@ typedef struct Sphere_t {
 } Sphere_t;
 
 
-static inline bool hit_sphere(Hittable* hittable, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record rec) {
+static inline bool hit_sphere(Hittable* hittable, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record* rec) {
     Sphere_t* sphere = (Sphere_t*)hittable;
     Vector_t oc = vector_sub(sphere->center, ray.origin);
     double a = vector_length_sq(ray.direction);
@@ -31,9 +31,9 @@ static inline bool hit_sphere(Hittable* hittable, Ray_t ray, double ray_tmin, do
         if (root <= ray_tmin || ray_tmax <= root) 
             return false;
     }
-    rec.t = root;
-    rec.p = ray_at(ray, rec.t);
-    Vector_t outward_normal = vector_scalar_div(vector_sub(rec.p, sphere->center), sphere->radius); 
+    rec->t = root;
+    rec->p = ray_at(ray, rec->t);
+    Vector_t outward_normal = vector_scalar_div(vector_sub(rec->p, sphere->center), sphere->radius); 
     set_face_normal(rec, ray, outward_normal);
 
     return true;

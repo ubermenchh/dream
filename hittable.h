@@ -12,14 +12,14 @@ typedef struct {
 typedef struct Hittable Hittable;
 
 struct Hittable {
-    bool (*hit)(Hittable* self, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record rec);
+    bool (*hit)(Hittable* self, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record* rec);
 };
 
-static inline void set_face_normal(Hit_Record hr, Ray_t ray, Vector_t outward_normal) {
+static inline void set_face_normal(Hit_Record* hr, Ray_t ray, Vector_t outward_normal) {
     // sets the hit record normal vector.
     // NOTE: `outward_normal` is assumed to have unit length.
     bool front_face = vector_dot(ray.direction, outward_normal) < 0;
-    hr.normal = front_face ? outward_normal : vector_negate(outward_normal);
+    hr->normal = front_face ? outward_normal : vector_negate(outward_normal);
 }
 
 #endif // HITTABLE_H

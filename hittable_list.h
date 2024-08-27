@@ -43,17 +43,17 @@ static inline void hittable_list_add(Hittable_List_t* list, Hittable* object) {
 }
 
 static inline bool hittable_list_hit(Hittable* hittable, Ray_t ray, double ray_tmin, 
-                                     double ray_tmax, Hit_Record rec) {
+                                     double ray_tmax, Hit_Record* rec) {
     Hittable_List_t* list = (Hittable_List_t*)hittable;
     Hit_Record temp_rec;
     bool hit_anything = false;
     double closest_so_far = ray_tmax;
 
     for (size_t i = 0; i < list->size; i++) {
-        if (list->objects[i]->hit(list->objects[i], ray, ray_tmin, closest_so_far, temp_rec)) {
+        if (list->objects[i]->hit(list->objects[i], ray, ray_tmin, closest_so_far, &temp_rec)) {
             hit_anything = true;
             closest_so_far = temp_rec.t;
-            rec = temp_rec;
+            *rec = temp_rec;
         }
     }
     return hit_anything;
