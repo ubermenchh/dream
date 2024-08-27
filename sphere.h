@@ -11,7 +11,7 @@ typedef struct Sphere_t {
 } Sphere_t;
 
 
-static inline bool hit_sphere(Hittable* hittable, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record* rec) {
+static inline bool hit_sphere(Hittable* hittable, Ray_t ray, Interval_t ray_t, Hit_Record* rec) {
     Sphere_t* sphere = (Sphere_t*)hittable;
     Vector_t oc = vector_sub(sphere->center, ray.origin);
     double a = vector_length_sq(ray.direction);
@@ -26,9 +26,9 @@ static inline bool hit_sphere(Hittable* hittable, Ray_t ray, double ray_tmin, do
     
     // Find the nearest root that lies in the acceptable range.
     double root = (h - sqrt_d) / a;
-    if (root <= ray_tmin || ray_tmax <= root) {
+    if (!interval_surrounds(ray_t, root)) {
         root = (h + sqrt_d) / a;
-        if (root <= ray_tmin || ray_tmax <= root) 
+        if (!interval_surrounds(ray_t, root)) 
             return false;
     }
     rec->t = root;

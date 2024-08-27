@@ -12,7 +12,7 @@ typedef struct {
 typedef struct Hittable Hittable;
 
 struct Hittable {
-    bool (*hit)(Hittable* self, Ray_t ray, double ray_tmin, double ray_tmax, Hit_Record* rec);
+    bool (*hit)(Hittable* self, Ray_t ray, Interval_t ray_t, Hit_Record* rec);
 };
 
 static inline void set_face_normal(Hit_Record* hr, Ray_t ray, Vector_t outward_normal) {
