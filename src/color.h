@@ -1,6 +1,7 @@
 #ifndef COLOR_H 
 #define COLOR_H 
 
+#include "interval.h"
 #include "vector.h" 
 
 typedef Vector_t Color_t;
@@ -17,9 +18,10 @@ static inline void write_color(Color_t pixel_color) {
     double b = pixel_color.z;
 
     // translate the [0, 1] component values to the byte range [0, 255]
-    int rbyte = (int)(255.999 * r);
-    int gbyte = (int)(255.999 * g);
-    int bbyte = (int)(255.999 * b);
+    Interval_t intensity = Interval(0.000, 0.999);
+    int rbyte = (int)(256 * interval_clamp(intensity, r));
+    int gbyte = (int)(256 * interval_clamp(intensity, g));
+    int bbyte = (int)(256 * interval_clamp(intensity, b));
 
     // write out the pixel color components 
     printf("%d %d %d\n", rbyte, gbyte, bbyte);

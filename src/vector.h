@@ -29,11 +29,11 @@ static inline Vector_t vector_add(Vector_t v, Vector_t w) {
     return out;
 }
 
-static inline Vector_t _vector_add(Vector_t v, Vector_t w) {
-    v.x += w.x; 
-    v.y += w.y; 
-    v.z += w.z;
-    return v;
+static inline Vector_t vector_add_(Vector_t* v, Vector_t w) {
+    v->x += w.x; 
+    v->y += w.y; 
+    v->z += w.z;
+    return *v;
 }
 
 static inline Vector_t vector_sub(Vector_t v, Vector_t w) {
@@ -41,11 +41,11 @@ static inline Vector_t vector_sub(Vector_t v, Vector_t w) {
     return out;
 }
 
-static inline Vector_t _vector_sub(Vector_t v, Vector_t w) {
-    v.x -= w.x;
-    v.y -= w.y;
-    v.z -= w.z;
-    return v;
+static inline Vector_t vector_sub_(Vector_t* v, Vector_t w) {
+    v->x -= w.x; 
+    v->y -= w.y; 
+    v->z -= w.z;
+    return *v;
 }
 
 static inline Vector_t vector_mult(Vector_t v, Vector_t w) {
@@ -53,11 +53,11 @@ static inline Vector_t vector_mult(Vector_t v, Vector_t w) {
     return out;
 }
 
-static inline Vector_t _vector_mult(Vector_t v, Vector_t w) {
-    v.x *= w.x;
-    v.y *= w.y;
-    v.z *= w.z;
-    return v;
+static inline Vector_t vector_mult_(Vector_t* v, Vector_t w) {
+    v->x += w.x; 
+    v->y += w.y; 
+    v->z += w.z;
+    return *v;
 }
 
 static inline Vector_t _vector_scalar_mult(Vector_t v, double t) {
@@ -77,11 +77,11 @@ static inline Vector_t vector_scalar_div(Vector_t v, double t) {
     return out;
 }
 
-static inline Vector_t _vector_scalar_div(Vector_t v, double t) {
-    v.x /= t;
-    v.y /= t; 
-    v.z /= t;
-    return v;
+static inline Vector_t vector_scalar_div_(Vector_t* v, double t) {
+    v->x /= t; 
+    v->y /= t; 
+    v->z /= t;
+    return *v;
 }
 
 static inline double vector_length_sq(Vector_t v) {

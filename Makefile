@@ -1,7 +1,8 @@
-CC = gcc 
-CFLAGS = -g -Wall -Wextra -std=c11 
-LIBFLAGS = -lm
-TARGET = main 
+CC=gcc 
+CFLAGS=-g -Wall -Wextra -std=c11 
+LIBFLAGS=-lm
+SRC_DIR=src
+TARGET=main 
 
 $(TARGET): main.o 
 	$(CC) $(CFLAGS) $(LIBFLAGS) -o $(TARGET) main.o 

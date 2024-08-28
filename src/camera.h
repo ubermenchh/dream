@@ -6,19 +6,23 @@
 #include "hittable_list.h"
 
 typedef struct Camera {
-    double aspect_ratio; // ratio of image width over height 
-    int image_width;     // rendered image width in pixel count 
-    int image_height;          // rendered image height 
-    Point_t center;            // camera center 
-    Point_t pixel00_loc;       // location of pixel (0, 0) 
-    Vector_t pixel_delta_u;    // offset to pixel to the height 
-    Vector_t pixel_delta_v;    // offset to pixel below
+    double aspect_ratio;        // ratio of image width over height 
+    int image_width;            // rendered image width in pixel count 
+    int samples_per_pixel;      // count of random samples for each pixel
+        
+    int image_height;           // rendered image height 
+    double pixel_samples_scale; // color scale factor for a sum of pixel samples
+    Point_t center;             // camera center 
+    Point_t pixel00_loc;        // location of pixel (0, 0) 
+    Vector_t pixel_delta_u;     // offset to pixel to the height 
+    Vector_t pixel_delta_v;     // offset to pixel below
 } Camera_t;
 
-static inline Camera_t Camera(double aspect_ratio, int image_width) {
+static inline Camera_t Camera(double aspect_ratio, int image_width, int samples_per_pixel) {
     Camera_t cam;
     cam.aspect_ratio = aspect_ratio;
     cam.image_width = image_width;
+    cam.samples_per_pixel = samples_per_pixel;
     return cam;
 }
 
@@ -38,10 +42,31 @@ static inline Color_t ray_color(Ray_t ray, Hittable* world) {
             );
 }
 
+static inline Vector_t sample_square() {
+    // returns the vector to a random point in the [-.5, -.5]-[+.5, +.5] unit square 
+    return Vector(rand_double() - 0.5, rand_double() - 0.5, 0);
+}
+
+static inline Ray_t get_ray(Camera_t* cam, int i, int j) {
+    /* Construct a camera ray originating from the origin and directed at 
+       randomly sampled point around the pixel location i, j */
+    Vector_t offset = sample_square();
+    Point_t pixel_sample = vector_add(cam->pixel00_loc, 
+                                      vector_add(vector_scalar_mult(cam->pixel_delta_u, 
+                                                                   (i + offset.x)),        
+                                                 vector_scalar_mult(cam->pixel_delta_v, 
+                                                                   (j + offset.y))));
+    Point_t ray_origin = cam->center;
+    Vector_t ray_direction = vector_sub(pixel_sample, ray_origin);
+
+    return Ray(ray_origin, ray_direction);
+}
+
 static inline void camera_init(Camera_t* cam) {
     cam->image_height = (int)(cam->image_width / cam->aspect_ratio);
     cam->image_height = (cam->image_height < 1) ? 1 : cam->image_height;
-
+    
+    cam->pixel_samples_scale = 1.0 / cam->samples_per_pixel;
     cam->center = (Point_t)Vector(0, 0, 0);
 
     // determine viewport dimensions 
@@ -74,14 +99,13 @@ static inline void camera_render(Camera_t* cam, Hittable* world) {
     printf("P3\n %d %d\n255\n", cam->image_width, cam->image_height);
     for (int j = 0; j < cam->image_height; j++) {
         for (int i = 0; i < cam->image_width; i++) {
-            Vector_t pixel_center = vector_add(cam->pixel00_loc, 
-                                               vector_add(vector_scalar_mult(cam->pixel_delta_u, i), 
-                                                          vector_scalar_mult(cam->pixel_delta_v, j)));
-            Vector_t ray_direction = vector_sub(pixel_center, cam->center);
-            Ray_t ray = Ray(cam->center, ray_direction);
-
-            Color_t pixel_color = ray_color(ray, world);
-            write_color(pixel_color);
+            Color_t pixel_color = Color(0, 0, 0);
+            for (int sample = 0; sample < cam->samples_per_pixel; sample++) {
+                Ray_t ray = get_ray(cam, i, j);
+                // pixel_color += ray_color(ray, world)
+                vector_add_(&pixel_color, (Vector_t)ray_color(ray, world));
+            }
+            write_color(vector_scalar_mult(pixel_color, cam->pixel_samples_scale));
         }
     }
 }
