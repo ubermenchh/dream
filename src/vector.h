@@ -1,7 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H 
 
-
 typedef struct Vector_t {
     double x;
     double y;
@@ -149,6 +148,14 @@ static inline Vector_t vector_refract(Vector_t uv, Vector_t n, double etai_over_
     Vector_t r_out_parallel = vector_scalar_mult(n, 
                                                  -sqrt(fabs(1.0 - vector_length_sq(r_out_perp))));
     return vector_add(r_out_perp, r_out_parallel);
+}
+
+static inline Vector_t random_vector_in_unit_disk(void) {
+    while (true) {
+        Vector_t p = Vector(random_double(-1, 1), random_double(-1, 1), 0);
+        if (vector_length_sq(p) < 1) 
+            return p;
+    }
 }
 
 #endif // VECTOR_H
