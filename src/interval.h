@@ -10,7 +10,7 @@ typedef struct {
 
 
 static inline Interval_t Interval(double min, double max) {
-    Interval_t in = {min, max};
+    Interval_t in = {.min = min, .max = max};
     return in;
 }
 

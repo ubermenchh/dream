@@ -12,10 +12,21 @@ static inline Color_t Color(double x, double y, double z) {
     return out;
 }
 
+static inline double linear_to_gamma(double linear_component) {
+    if (linear_component > 0) 
+        return sqrt(linear_component);
+    return 0;
+}
+
 static inline void write_color(Color_t pixel_color) {
     double r = pixel_color.x;
     double g = pixel_color.y;
     double b = pixel_color.z;
+
+    // apply a linear to gamma transform for gamma 2 
+    r = linear_to_gamma(r);
+    g = linear_to_gamma(g);
+    b = linear_to_gamma(b);
 
     // translate the [0, 1] component values to the byte range [0, 255]
     Interval_t intensity = Interval(0.000, 0.999);

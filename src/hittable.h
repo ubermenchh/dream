@@ -1,10 +1,12 @@
 #ifndef HITTABLE_H 
 #define HITTABLE_H 
 
+typedef struct Material_t Material_t;
 
-typedef struct {
+typedef struct Hit_Record {
     Point_t p;
     Vector_t normal;
+    Material_t* mat;
     double t;
     bool front_face;
 } Hit_Record;

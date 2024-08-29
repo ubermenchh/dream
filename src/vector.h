@@ -11,8 +11,7 @@ typedef struct Vector_t {
 typedef Vector_t Point_t;
 
 static inline Vector_t Vector(double x, double y, double z) {
-    Vector_t out = {.x = x, .y = y, .z = z};
-    return out;
+    return (Vector_t){.x = x, .y = y, .z = z};
 }  
 
 static inline void vector_print(Vector_t v) {
@@ -104,6 +103,52 @@ static inline Vector_t vector_cross(Vector_t v, Vector_t w) {
 
 static inline Vector_t unit_vector(Vector_t v) {
     return vector_scalar_div(v, vector_length(v));
+}
+
+static inline Vector_t rand_vector() {
+    return Vector(rand_double(), rand_double(), rand_double());
+}
+
+static inline Vector_t random_vector(double min, double max) {
+    return Vector(random_double(min, max), random_double(min, max), random_double(min, max));
+}
+
+static inline Vector_t random_vector_in_unit_sphere() {
+    while (true) {
+        Vector_t p = random_vector(-1, 1);
+        if (vector_length(p) < 1) 
+            return p;
+    }
+}
+
+static inline Vector_t random_unit_vector() {
+    return unit_vector(random_vector_in_unit_sphere());
+}
+
+static inline Vector_t random_vector_on_hemisphere(Vector_t* normal) {
+    Vector_t on_unit_sphere = random_unit_vector();
+    if (vector_dot(on_unit_sphere, *normal) > 0.0) // in the same hemisphere as the normal 
+        return on_unit_sphere;
+    else 
+        return vector_negate(on_unit_sphere);
+}
+
+static inline bool vector_near_zero(Vector_t vec) {
+    // return true if the vector is close to zero in all directions 
+    double s = 1e-8;
+    return (fabs(vec.x) < s) && (fabs(vec.y) < s) && (fabs(vec.z) < s);
+}
+
+static inline Vector_t vector_reflect(Vector_t v, Vector_t n) {
+    return vector_sub(v, vector_scalar_mult(n, 2*vector_dot(v, n)));
+}
+
+static inline Vector_t vector_refract(Vector_t uv, Vector_t n, double etai_over_etat) {
+    double cos_theta = fmin(vector_dot(vector_negate(uv), n), 1.0);
+    Vector_t r_out_perp = vector_scalar_mult(vector_add(uv, vector_scalar_mult(n, cos_theta)), etai_over_etat);
+    Vector_t r_out_parallel = vector_scalar_mult(n, 
+                                                 -sqrt(fabs(1.0 - vector_length_sq(r_out_perp))));
+    return vector_add(r_out_perp, r_out_parallel);
 }
 
 #endif // VECTOR_H

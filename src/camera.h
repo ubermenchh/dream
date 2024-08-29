@@ -3,12 +3,13 @@
 
 #include "dream.h"
 #include "hittable.h"
-#include "hittable_list.h"
+#include "material.h"
 
 typedef struct Camera {
     double aspect_ratio;        // ratio of image width over height 
     int image_width;            // rendered image width in pixel count 
     int samples_per_pixel;      // count of random samples for each pixel
+    int max_depth;              // max number of ray bounces into scene
         
     int image_height;           // rendered image height 
     double pixel_samples_scale; // color scale factor for a sum of pixel samples
@@ -18,20 +19,32 @@ typedef struct Camera {
     Vector_t pixel_delta_v;     // offset to pixel below
 } Camera_t;
 
-static inline Camera_t Camera(double aspect_ratio, int image_width, int samples_per_pixel) {
-    Camera_t cam;
-    cam.aspect_ratio = aspect_ratio;
-    cam.image_width = image_width;
-    cam.samples_per_pixel = samples_per_pixel;
-    return cam;
+static inline Camera_t Camera(double aspect_ratio, int image_width,
+                              int samples_per_pixel, int max_depth) {
+    return (Camera_t){
+        .aspect_ratio = aspect_ratio,
+        .image_width = image_width,
+        .samples_per_pixel = samples_per_pixel,
+        .max_depth = max_depth
+    };
 }
 
-// Equation for the gradient
-// blended_value = (1 - a) * start_value + a * end_value
-static inline Color_t ray_color(Ray_t ray, Hittable* world) {
+static inline Color_t ray_color(Ray_t ray, int depth, Hittable* world) {
+    /* Equation for the gradient 
+       blended_value = (1 - a) * start_value + a * end_value */
+
+    if (depth <= 0)  // if we've exceeded the ray bounce limit, no more light is gathered
+        return Color(0, 0, 0);
+
     Hit_Record rec;
-    if (world->hit(world, ray, Interval(0, INFINITY), &rec)) {
-        return vector_scalar_mult(vector_add(rec.normal, Color(1, 1, 1)), 0.5);
+    if (world->hit(world, ray, Interval(0.0001, INFINITY), &rec)) {
+        Ray_t scattered;
+        Color_t attenuation;
+        Material_t* mat = (Material_t*)rec.mat;
+        if (mat->scatter(mat, &ray, &rec, &attenuation, &scattered)) {
+            return vector_mult(attenuation, ray_color(scattered, depth-1, world));
+        }
+        return Color(0, 0, 0);
     } 
 
     Vector_t unit_direction = unit_vector(ray.direction);
@@ -50,6 +63,7 @@ static inline Vector_t sample_square() {
 static inline Ray_t get_ray(Camera_t* cam, int i, int j) {
     /* Construct a camera ray originating from the origin and directed at 
        randomly sampled point around the pixel location i, j */
+
     Vector_t offset = sample_square();
     Point_t pixel_sample = vector_add(cam->pixel00_loc, 
                                       vector_add(vector_scalar_mult(cam->pixel_delta_u, 
@@ -103,7 +117,7 @@ static inline void camera_render(Camera_t* cam, Hittable* world) {
             for (int sample = 0; sample < cam->samples_per_pixel; sample++) {
                 Ray_t ray = get_ray(cam, i, j);
                 // pixel_color += ray_color(ray, world)
-                vector_add_(&pixel_color, (Vector_t)ray_color(ray, world));
+                vector_add_(&pixel_color, (Vector_t)ray_color(ray, cam->max_depth, world));
             }
             write_color(vector_scalar_mult(pixel_color, cam->pixel_samples_scale));
         }
