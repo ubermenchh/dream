@@ -93,10 +93,12 @@ static inline bool dielectric_scatter(Material_t* mat, Ray_t* ray_in, Hit_Record
     double ri = rec->front_face ? (1.0 / diel->refraction_index) : diel->refraction_index;
 
     Vector_t unit_direction = unit_vector(ray_in->direction);
-    double cos_theta = fmin(vector_dot(vector_negate(unit_direction), rec->normal), 1.0);
-    double sin_theta = sqrt(1.0 - cos_theta*cos_theta);
+    Vector_t neg_unit_direction = vector_negate(unit_direction);
 
-    bool cannot_refract = (ri * sin_theta) > 1.0;
+    double cos_theta = fmin(vector_dot(neg_unit_direction, rec->normal), 1.0);
+    double sin_theta = sqrt(1.0 - (cos_theta*cos_theta));
+
+    bool cannot_refract = ri * sin_theta > 1.0;
     Vector_t direction;
 
     if (cannot_refract || diel->reflectance(cos_theta, ri) > rand_double()) 

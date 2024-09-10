@@ -91,7 +91,7 @@ static inline double vector_length(Vector_t v) {
 }
 
 static inline double vector_dot(Vector_t v, Vector_t w) {
-    return v.x * w.x + v.y * w.y + v.z * w.z;
+    return (v.x * w.x) + (v.y * w.y) + (v.z * w.z);
 }
 
 static inline Vector_t vector_cross(Vector_t v, Vector_t w) {
